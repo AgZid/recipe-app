@@ -1,0 +1,314 @@
+<div *ngIf="viewMode; else editable">
+  <div class="row">
+    <div *ngIf="currentRecipe.id"> 
+
+      <div class="container pt-3">
+        <form>
+          <h4> Select recipe</h4>
+          <label for="numberOfServings">Enter number of servings</label>
+          <div class="row">
+            <div class="col-sm-6"> 
+              <input
+              type="number"
+              class="form-control"
+              id="numberOfServings"
+              [(ngModel)]="selectedRecipe.numberOfServings"
+              name="numberOfServings"
+              required
+              #numberOfServings = "ngModel"
+              min="1"
+              />
+
+              <div *ngIf="numberOfServings.invalid && numberOfServings.touched">
+                <div *ngIf="numberOfServings.errors">
+                  <span style="color: rgb(255, 0, 0)">Integer number greater than 0 is required </span>
+                </div>
+              </div> 
+
+            </div>
+            <div class="col-sm-1"><button 
+              type="submit"
+              *ngIf = "isValidSelectedNumberOfServings()"
+              class="badge badge-success mb-2"
+              (click)="selectRecipe()" >
+              Select
+            </button></div>
+          </div>
+         
+        </form>
+      </div>
+
+      <div class="container pt-3">
+        <p>Edit recipe
+          <a class="badge badge-warning" ata-toggle="tooltip" title="Edit recipe details"
+              routerLink="{{ currentRecipe.id}}">
+              &#x270e;
+          </a>
+        </p>    
+      </div>
+        
+      <div class="container pt-3">
+        <h4>Recipe details</h4>
+        <div>
+          <label><strong>Title:</strong></label> {{ currentRecipe.title }}
+        </div>
+        <div>
+          <label><strong>Number Of Servings:</strong></label>
+          {{ currentRecipe.numberOfServings }}
+        </div>
+        <div>
+          <label><strong>Ingredients:</strong></label>
+        </div>
+        <div>
+            <ul *ngFor="let ingredient of currentRecipe.ingredients" class="list-group-small ">
+              <li class="list-group-item, .border-0">
+                {{ ingredient.quantity }} {{ ingredient.measurementUnit }} {{ ingredient.product }} 
+              </li>
+            </ul>
+        </div>
+        <div>
+          <label><strong>Preperation steps:</strong></label>
+        </div>
+        <div>
+          <ol  class="list-group-small ">
+            <li *ngFor="let preperation of currentRecipe.preparations" class="list-group-item, .border-0">
+              {{ preperation.stepAction}} 
+            </li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+    <div *ngIf="!currentRecipe">
+        <br />
+        <p>Please click on a Recipe...</p>
+    </div>
+  </div>
+
+</div>
+
+<ng-template #editable>
+  <div *ngIf="currentRecipe.id" class="edit-form">
+    <h4>Recipe heading details</h4>
+    <form>
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input
+          type="text"
+          class="form-control"
+          id="title"
+          required
+          [(ngModel)]="currentRecipe.title"
+          name="title"
+          #title="ngModel"
+        />
+
+        <div *ngIf="title.invalid && title.touched">
+          <div *ngIf="title.errors">
+            <span style="color: rgb(255, 0, 0)">Title is required </span>
+          </div>
+        </div> 
+
+      </div>
+      <div class="form-group">
+        <label for="numberOfServings">Number Of Servings</label>
+        <input
+          type="number"
+          class="form-control"
+          id="numberOfServings"
+          [(ngModel)]="currentRecipe.numberOfServings"
+          name="numberOfServings"
+          required
+          min = 1
+          #numberOfServings="ngModel"
+        />
+
+        <div *ngIf="numberOfServings.invalid && numberOfServings.touched">
+          <div *ngIf="numberOfServings.errors">
+            <span style="color: rgb(255, 0, 0)">Integer number greater than 0 is required </span>
+          </div>
+        </div> 
+
+      </div>
+      <div class="form-group">
+        <label for="totalTime">Total Time</label>
+        <input
+            type="text"
+            class="form-control"
+            id="totalTime"
+            [(ngModel)]="currentRecipe.totalTime"
+            name="totalTime"
+          />
+      </div>
+      <div class="form-group">
+          <label for="rating">Rating</label>
+          <input
+            type="range"
+            class="form-control"
+            id="rating"
+            [(ngModel)]="currentRecipe.rating"
+            name="rating"
+            min = 1
+            max = 5
+            step="0.5"
+          />
+      </div>
+    </form>
+    <button class="btn btn-badge badge-danger btn-sm ml-1" (click)="deleteRecipe()">
+      &#10005;
+    </button>
+
+    <button
+      class="btn btn-success btn-sm ml-1"
+      (click)="updateRecipe()"
+      [disabled]=!isValidRecipeHeading() >
+      &#10003;
+    </button>
+    <p>{{ message }}</p>
+
+    <br>
+    <hr>
+
+  </div>
+
+  <div class="form-group">
+    <h5>Ingredients:</h5>
+    <table class="table table-sm table-bordered table-striped">
+      <tbody>
+        <tr *ngFor="let ingredient of currentRecipe.ingredients; let productIndex = index">
+          <td >{{ingredient.product}}</td>
+          <td >{{ingredient.quantity}}</td>
+          <td >{{ingredient.measurementUnit}}</td>
+          <td>
+            <button class="btn btn-success btn-sm ml-1" [disabled]=!isValidRecipeIngredient() (click)="onClickUpadteIngredient(ingredient.id)">&#9998;</button>
+            <button class="btn btn-danger btn-sm ml-1" (click)="onClickDeleteIngredient(ingredient.id)">&#10005;</button>  
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <H6>Add new/Update ingredient details:</H6>
+    <div class = "row">
+    
+      <div class="col-sm-7">
+        <label for="product">Product</label>
+        <input
+          type="string"
+          class="form-control"
+          id="product"
+          required
+          [(ngModel)]="currentIngredient.product"
+          name="product"
+          #product="ngModel"
+        />
+
+        <div *ngIf="product.invalid && product.touched">
+          <div *ngIf="product.errors">
+            <span style="color: rgb(255, 0, 0)">Product to add/update is required </span>
+          </div>
+        </div> 
+      </div>
+      
+      <div class="col-sm-2 ">
+        <label for="quantity">Quantity</label>
+        <input
+          type="number"
+          class="form-control"
+          id="quantity"
+          required
+          [(ngModel)]="currentIngredient.quantity"
+          name="quantity" placeholder="Quantity"
+          #quantity="ngModel"
+        />
+
+        <div *ngIf="quantity.invalid && quantity.touched">
+          <div *ngIf="quantity.errors">
+            <span style="color: rgb(255, 0, 0)">Quantity must be greater than 0</span>
+          </div>
+        </div> 
+      </div>
+
+      <div class="col-sm-2">
+        <label for="measurementUnit">Measurement unit</label>
+        <select  name="dropDownList" class="form-control form-control-sm"  [(ngModel)]="currentIngredient.measurementUnit" >
+          <option *ngFor="let measurementUnit of measurementUnits;"  id="measurementUnit" name="measurementUnit">{{measurementUnit}}</option>
+        </select>
+      </div> 
+      <div class="col-sm-1">
+        <br>
+        <button class="btn btn-success btn-sm ml-1" [disabled]=!isValidRecipeIngredient() (click)=" addIngredient(currentRecipe.id)"> &#43;</button>
+      </div> 
+    </div>
+
+    <br>
+    <hr>
+  </div>
+
+  <div class="form-group">
+    <h5>Preparation:</h5>
+    <table class="table table-sm table-bordered table-striped">
+      <tbody>
+        <tr *ngFor="let preparation of currentRecipe.preparations; let productIndex = index">
+          <td >{{preparation.stepNo}}</td>
+          <td >{{preparation.stepAction}}</td>
+          <td>
+            <button class="btn btn-success btn-sm ml-1" [disabled]=!isValidRecipePreparation() (click)="onClickUpadtePreparation(preparation.id)">&#9998;</button>
+            <button class="btn btn-danger btn-sm ml-1" (click)="onClickDeletePreparation(preparation.id)">&#10005;</button>  
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <H6>Add new/Update preperation step:</H6>
+    <div class = "row">
+      <div class="col-sm-2">
+        <label for="stepNo">Step number</label>
+        <input
+          type="number"
+          class="form-control"
+          id="stepNo"
+          required
+          [(ngModel)]="currentPreparation.stepNo"
+          name="stepNo" placeholder="Step number"
+          #stepNo="ngModel"
+        />
+
+        <div *ngIf="stepNo.invalid && stepNo.touched">
+          <div *ngIf="stepNo.errors">
+            <span style="color: rgb(255, 0, 0)">Integer number greater than 0 is required</span>
+          </div>
+        </div> 
+      </div>
+
+      <div class="col-sm-9 ">
+        <label for="stepAction">Step action</label>
+        <input
+          type="text"
+          class="form-control"
+          id="stepAction"
+          required
+          min = 1
+          [(ngModel)]="currentPreparation.stepAction"
+          name="stepAction" placeholder="Step action"
+          #stepAction="ngModel"
+        />
+
+        <div *ngIf="stepAction.invalid && stepAction.touched">
+          <div *ngIf="stepAction.errors">
+            <span style="color: rgb(255, 0, 0)">Step action is required</span>
+          </div>
+        </div> 
+
+      </div>
+      <div class="col-sm-1">
+        <br>
+        <button class="btn btn-success btn-sm ml-1" [disabled]=!isValidRecipePreparation() (click)=" addPreparationStep(currentRecipe.id)">&#43;</button>
+      </div> 
+    </div>
+  </div>
+
+  <div *ngIf="!currentRecipe.id">
+    <br />
+    <p>Cannot access this Recipe...</p>
+  </div>
+</ng-template>

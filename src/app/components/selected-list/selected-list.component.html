@@ -1,0 +1,75 @@
+<div class="row" *ngIf="deleteMsg !== ''">  
+    <div class="alert alert-info alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{deleteMsg}}
+    </div>
+  </div>
+  <div class="row">
+      <h2>Selected recipes</h2>
+      <table class="table table-sm table-bordered table-striped">
+
+          <thead>
+            <tr>
+                <th>Id</th>
+                <th>Recipe id</th>
+                <th>Recipe title</th>
+                <th>Number of servings</th>
+                <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let selectedRecipe of selectedRecipes; let i = index">
+              <td>{{selectedRecipe.id}}</td>
+              <td>{{selectedRecipe.recipeId}}</td>
+              <td>{{selectedRecipe.recipeTitle}}</td>
+              <td (click)="setCodeEdit(i)">
+                <span *ngIf="!selectedRecipe.canEditCode">{{selectedRecipe.numberOfServings}}</span>
+                <div *ngIf="selectedRecipe.canEditCode">
+                  <input
+                    [(ngModel)]="selectedRecipe.numberOfServings" 
+                    type="number" 
+                    class="form-control" 
+                    min = 1  
+                    #selNumberOfServings="ngModel" 
+                  />
+
+                  <div *ngIf="selNumberOfServings.invalid">
+                    <div *ngIf="selNumberOfServings.errors">
+                      <span style="color: rgb(255, 0, 0)">Integer number greater than 0 is required </span>
+                    </div>
+                  </div>
+
+                </div>
+              </td>
+
+              <td>
+                <button class="btn btn-success btn-sm ml-1" [disabled] = !isValidSelectedNumberOfServings(i) (click)=" onClickUpadte(i)">
+                    &#10003;
+                </button>
+                <button class="btn btn-danger btn-sm ml-1" (click)="onClickDelete(selectedRecipe.id)">
+                  &#10005;
+                </button>   
+              </td>
+            </tr>
+          </tbody>
+      </table>
+  </div>
+
+  <div>
+    <h4>Aggregated list of ingredients</h4>
+    <table class="table table-sm table-bordered table-striped">
+          <thead>
+            <tr>
+                <th>Product</th>
+                <th>Total amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ingredient of aggregatedIngredients | keyvalue ">
+              <td>{{ingredient.key}}</td>
+              <td>{{ingredient.value}}</td>
+            </tr>
+          </tbody>
+      </table>
+  </div>

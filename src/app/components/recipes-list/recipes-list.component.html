@@ -1,0 +1,49 @@
+<div class="list row">
+    <div class="col-md-8">
+      <div class="input-group mb-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by title"
+          [(ngModel)]="title"
+        />
+        <div class="input-group-append">
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            (click)="searchTitle()"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h4>Recipes</h4>
+      <table class="table table-sm table-bordered table-striped">
+        <thead>
+          <tr>
+              <th>Recipe title</th>
+              <th>Rating</th>
+              <th>Total time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let recipe of recipes; let i = index"
+          [class.active]="i == currentIndex"
+          (click)="setActiveRecipe(recipe, i)">
+            <td>{{recipe.title}}</td>
+            <td>{{recipe.rating}}</td>
+            <td>{{recipe.totalTime}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-4">
+      <app-recipe-details
+        [viewMode]="true"
+        [currentRecipe]="currentRecipe" >
+      </app-recipe-details>
+    </div>
+  </div>
